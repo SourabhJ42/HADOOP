@@ -1,0 +1,179 @@
+DAY 4:
+
+set hive.cli.print.current.db=true;//check current DB
+
+------------------------------------------------------------------------------------------------
+#dynamic partitioning
+set hive.exec.dynamic.partition=true;
+set hive.exec.dynamic.partition.mode=nonstrict;
+
+
+create table student1(name string,rollno int, per float,state string, city string)
+row format delimited
+fields terminated by ','
+stored as textfile;
+
+load data local inpath '/media/sf_MyWork/partstud1' into table student1;
+load data local inpath '/media/sf_MyWork/partstud2' into table student1;
+load data local inpath '/media/sf_MyWork/partstud3' into table student1;
+
+---------------------------------------------------------------------------------------------
+
+create table stud_part(name string,rollno int, per float)
+partition by (state string, city string)
+row format delimited
+fields terminated by ','
+stored as textfile;
+
+insert into table stud_part partition(state,city) select name,rollno,per,state,city from student1;
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+
+#Bucketing;
+
+create database bucketddb;
+use bucketddb;
+
+create table sample_table1(id int, firstname string, lastname string)
+row format delimited
+fields terminated by ','
+stored as textfile;
+
+load data local inpath '/media/sf_MyWork/db1' into table sample_table1;
+
+
+create table my_bucket_table(id int,fname string,lname string)
+clustered by (id) into 3 buckets
+row format delimited
+fields terminated by ','
+    stored as textfile;
+
+insert into my_bucket_table select * from sample_table1;
+
+hdfs dfs -cat /user/hive/warehouse/bucketddb.db/my_bucket_table/000000_0;
+hdfs dfs -cat /user/hive/warehouse/bucketddb.db/my_bucket_table/000001_0;
+hdfs dfs -cat /user/hive/warehouse/bucketddb.db/my_bucket_table/000002_0;
+
+select*from my_bucket_table
+tablesample1(bucket 1 out of 3 on id);
+---------------------------------------------------------------------------------------------
+create table employee_hr(name string, employee_id int , sin_number string, start_date date )
+row format delimited
+fields terminated by '|'
+stored as textfile;
+
+load data local inpath '/media/sf_MyWork/employee_hr.txt' into table employee_hr;
+===============================================================================
+
+++++++JOINS+++++++++
+1)INNER JOIN
+select emp.emp_name,hr.employee_id,emp.emp_work_place
+from employee emp
+inner join  employee_hr hr
+on (emp.emp_name=hr.name);
+
+2)LEFT JOIN
+select emp.emp_name,hr.employee_id,emp.emp_work_place
+from employee emp
+left join  employee_hr hr
+on (emp.emp_name=hr.name);
+
+3)RIGHT JOIN
+select emp.emp_name,hr.employee_id,emp.emp_work_place
+from employee emp
+right join  employee_hr hr
+on (emp.emp_name=hr.name);
+
+4)FULL OUTER JOIN
+select emp.emp_name,hr.name,hr.employee_id,emp.emp_work_place
+from employee emp
+full outer join  employee_hr hr
+on (emp.emp_name=hr.name);
+
+
+
+
+||||||||||||||||||||||||||||END||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+//dynamic partition
+set hive.exec.dynamic.partition=true;
+set hive.exec.dynamic.partition.mode=nonstrict
+
+create table sample_table(id int,firstname string,lastname string)
+    > row format delimited
+    > fields terminated by ','
+    > stored as textfile ; 
+
+
+
+//buckets
+
+create table sample_table(id int,firstname string,lastname string)
+    row format delimited
+    fields terminated by ','
+    stored as textfile ; 
+
+load data local inpath '/media/sf_MyWork/HiveData/db1' into table sample_table;
+//Loading data to table bucketeddb.sample_table
+
+
+create table my_bucket_table(id int,fname string,lname string)
+                  clustered by (id) into 3 buckets
+                  row format delimited
+                 fields terminated by ','
+                 stored as textfile ; 
+
+set hive.enforce.bucketing=True;
+
+insert into my_bucket_table select * from sample_table;
+
+hdfs dfs -cat /user/hive/warehouse/bucketeddb.db/my_bucket_table/000002_0
+
+-----------------------------------------------------------------------------------------------
+//joining
+create table employee_hr(
+                 name string,employee_id int,sin_number string,start_date date)
+                 row format delimited
+                 fields terminated by '|'
+                 stored as textfile ;
+
+load data local inpath '/media/sf_MyWork/HiveData/employee_hr.txt'  into table employee_hr;
+
+CREATE TABLE employee
+                 > 
+                 > (
+                 > 
+                 > name string,
+                 > 
+                 > work_place ARRAY<string>,
+                 > 
+                 > sex_age STRUCT<sex:string, age:int>,
+                 > 
+                 > skills_score MAP<string, int>,
+                 > 
+                 depart_title MAP<string, ARRAY<string>>)
+         
+                  ROW FORMAT DELIMITED
+                  
+                  FIELDS TERMINATED BY '|'
+                  
+                  COLLECTION ITEMS TERMINATED BY ','
+                  
+                  MAP KEYS TERMINATED BY ':'
+                  
+                 STORED AS TEXTFILE;
+
+load data local inpath '/media/sf_MyWork/employee.txt'  into table employee;
+
+//inner join
+select emp.name,emph.employee_id,emp.work_place
+from employee emp join employee_hr emph
+where emp.name=emph.name
+
+//left join
+select emp.name from employee emp outer join employee_hr emphr on emp.name=emphr.name;
+
+//full outer join
+select emp.name from employee emp full outer join employee_hr emphr on emp.name=emphr.name;
+
+
