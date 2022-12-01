@@ -1,0 +1,77 @@
+DAY 4:
+
+##===============================JSON======================================##
+
+---------------------------------------------------------------------
+##Serilization and Deserilization:
+---------------------------------------------------------------------
+Table 1:
+
+Adding/ to provide the program for sterilization and deserialization
+add jar hive-json-serde-0.2.jar;
+
+creating the table:
+create table user_json1(id int, name string)
+ROW FORMAT SERDE 'org. apache. hadoop. hive.contrib.serde2.JsonSerde';// package name + class name of program
+
+load data local inpath ‘/home/admin1/new file/user.json' into table user_json1;
+------------------------------------------------------------------------------------------------------------
+
+Table2:
+for employee.json file
+
+create table user_json2(userId string,jobTitleName string,firstName string ,lastName string ,preferredFullName string ,employeeCode string,region string,phoneNumber string,emailAddress string)
+Row FORMAT SERDE 'org.apache.hadoop.hive.contrib.serde2.JsonSerde';
+
+load data local inpath '/home/admin1/Desktop/new files/employees.json' into table user_json2;
+
+
+##--------------------------------------------------------------------------##
+					XML
+##--------------------------------------------------------------------------##
+
+add jar hivexmlserde-1.0.5.2.jar;
+
+create table user_xml(id int, name string)
+row format serde 'com.ibm.spss.hive.serde2.xml.XmlSerDe'  
+with serdeproperties (
+"column.xpath.id"="user/id/text()",
+"column.xpath.name"="/user/name/text()"
+)
+stored as
+inputformat 'com.ibm.spss.hive.serde2.xml.XmlInputFormat'
+outputformat 'org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat'
+tblproperties(
+"xmlinput.start"="<user>",
+"xmlinput.end"="</user>"
+);
+
+/*----
+comments:
+row format serde 'com.ibm.spss.hive.serde2.xml.XmlSerDe'  
+This is package of program which we provide in first line 
+add jar hivexmlserde-1.0.5.2.jar;
+this line having jar file which contains program for serde
+"xmlinput.start"="<user>",xmlinput.end"="</user>"we Providing the starting and end of each record 
+-----*/
+
+load data local inpath'/home/admin1/user.xml' into table user_xml;
+select * from user_xml;
+
+
+##-----------------------------------------------------------------------------------------##
+					Agrregation
+##-----------------------------------------------------------------------------------------##
+
+
+create table car(id int,Brand string,name string,year string)
+row format delimited
+fields terminated by ','
+stored as textfile;
+//stored as textfile: here we are saying we have to save this as text file
+
+Que:Provide names of brand which have more than one 
+select brand from car group by brand having count(*)>1;
+
+assignment
+
