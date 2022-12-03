@@ -1,0 +1,236 @@
+Problem Statement –
+
+A firm runs a web-site where it expects traffic from various countries across the world. It has loggers on their web servers which saves all the information about the request every client makes.
+Now to grow their business worldwide, they want to analyze the traffic coming on their web servers so that they can provide better service to their customers. Here they are expecting following information 
+1.No. of sessions by country
+2.No. of sessions by city
+3.No. of sessions by browser type
+4.No. of errors per thousand requests
+5.MS Excel reports showing above said information
+
+Data Provided –
+
+1.Web Server logs
+Schema – IP Address, Date, Type of Http call, Http Status, URL
+Hint – Error is when Http Status not equal to 200.
+
+2.IP address to Country, City and Browser Mapping
+Schema – IP, Country, Browser, City
+
+Solution:
+Tables:
+1.IP:
+
+desc ip;
+
+ip                  	string              	                    
+country             	string              	                    
+browser             	string              	                    
+city                	string   
+
+2.Weblogs:
+
+desc weblogs;
+ip                  	string              	                    
+date_req            	string              	                    
+request_type        	string              	                    
+error               	int                 	                    
+url                 	string  
+
+  
+1.hive (assign)> select i.country, count(*) from ip i inner join weblogs w on i.ip=w.ip group by i.country;
+
+AUS	74
+AUSTRIA	32
+CHINA	45
+FRANCE	192
+GERMANY	100
+INDIA	1174
+ITALY	225
+RUSSIA	251
+UAE	173
+UK	112
+US	343
+
+
+2.hive (assign)> select i.city, count(*) from ip i inner join weblogs w on i.ip=w.ip group by i.city;
+
+
+
+ABU DHABI	4
+AJMAN	42
+ALBURY	16
+BEIJING	22
+BERLIN	48
+BIRMINGHAM	20
+CHENNAI	17
+CHICAGO	54
+DALLAS	120
+DELHI	18
+DUBAI	125
+HAMBURG	8
+HESSE	8
+LINZ	19
+LONDON	67
+LYON	45
+MACAU	2
+MARSEILLE	43
+MILAN	30
+MOSCOW	16
+MUMBAI	3
+MUNICH	36
+ORANGE	48
+PARIS	104
+PENRITH	5
+PUNE	1136
+ROME	4
+SAN FRANSISCO	62
+SHANGHAI	19
+SHARJAH	2
+SIBAY	222
+SYDNEY	5
+TIANGIN	2
+VENICE	191
+VIENNA	4
+WASHINGTON	107
+WELS	9
+WEMBLEY	25
+YADRIN	13
+
+
+
+3.hive> select i.browser, count(*) from ip i inner join weblogs w on i.ip=w.ip group by i.browser;
+
+
+
+CHROME	1931
+FIREFOX	297
+OPERA	166
+SAFARI	327
+
+
+
+
+4.select count(*)/2.622 from weblogs where error not in (200);
+
+536.6132723112129
+
+OR
+
+hive> select count(case when error!=200 then 1 end)/(count(*)/1000) from weblogs;
+
+536.6132723112129
+
+
+------------------------------------------------------------------------------------------
+					OPTIMIZATION
+-------------------------------------------------------------------------------------------
+Now we will optimize the solution/tables:
+For Optimization run following four commands and then store the table as ORC
+
+set hive.cbo.enable=true;
+set hive.compute.query.using.stats=true;
+set hive.stats.fetch.column.stats=true;
+set hive.stats.fetch.partition.stats=true;
+
+create table ip_opt(ip string, country string,browser string,city string)
+stored as ORC;
+
+insert into ip_opt select *from weblogs;
+
+create table weblogs_opt(ip string, date_req string,request_type string,error int, url string)
+stored as ORC;
+
+insert into weblogs_opt select * from weblogs;
+
+
+Also for follwoing commands we can use ip_opt /weblogs_opt
+
+
+1.hive (assign)> select i.country, count(*) from ip i inner join weblogs w on i.ip=w.ip group by i.country;
+
+AUS	74
+AUSTRIA	32
+CHINA	45
+FRANCE	192
+GERMANY	100
+INDIA	1174
+ITALY	225
+RUSSIA	251
+UAE	173
+UK	112
+US	343
+
+
+2.hive (assign)> select i.city, count(*) from ip i inner join weblogs w on i.ip=w.ip group by i.city;
+
+
+
+ABU DHABI	4
+AJMAN	42
+ALBURY	16
+BEIJING	22
+BERLIN	48
+BIRMINGHAM	20
+CHENNAI	17
+CHICAGO	54
+DALLAS	120
+DELHI	18
+DUBAI	125
+HAMBURG	8
+HESSE	8
+LINZ	19
+LONDON	67
+LYON	45
+MACAU	2
+MARSEILLE	43
+MILAN	30
+MOSCOW	16
+MUMBAI	3
+MUNICH	36
+ORANGE	48
+PARIS	104
+PENRITH	5
+PUNE	1136
+ROME	4
+SAN FRANSISCO	62
+SHANGHAI	19
+SHARJAH	2
+SIBAY	222
+SYDNEY	5
+TIANGIN	2
+VENICE	191
+VIENNA	4
+WASHINGTON	107
+WELS	9
+WEMBLEY	25
+YADRIN	13
+
+
+
+3.hive> select i.browser, count(*) from ip i inner join weblogs w on i.ip=w.ip group by i.browser;
+
+
+
+CHROME	1931
+FIREFOX	297
+OPERA	166
+SAFARI	327
+
+
+
+
+4.select count(*)/2.622 from weblogs where error not in (200);
+
+536.6132723112129
+
+OR
+
+hive> select count(case when error!=200 then 1 end)/(count(*)/1000) from weblogs;
+
+536.6132723112129
+
+
+
+
+
