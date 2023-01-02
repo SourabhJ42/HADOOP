@@ -1,0 +1,18 @@
+========================================================================================================================================
+*****05-12-2022****************
+
+sqoop cannot work on real time data
+
+selecting the right tool according to the data is important
+
+datat injestion tools eliminate the need for manual coding of individual pipelines for every data source. so, they improve and accelerate
+data processing 
+
+kafka is most popular tool for data injestion
+
+------------------sqoop-------------------------------------------------
+-offers command line interface
+-designed for transferring data from sql to hadoop
+-it supports incremental loads(loading only the missing records), they save time as we don't need to load all the records again(overwriting).
+		in short it appends the data rather than overwriting
+-

@@ -1,0 +1,402 @@
+scala> val data=spark.sparkContext.parallelize(Array("jan","feb","march","april","may","june","july","aug","sep"))
+data: org.apache.spark.rdd.RDD[String] = ParallelCollectionRDD[0] at parallelize at <console>:22
+
+scala> data.collect()
+res0: Array[String] = Array(jan, feb, march, april, may, june, july, aug, sep)
+
+scala> val data1=spark.sparkContext.parallelize(Seq(("maths",52),("english",75),("science",82),("computer",65),("maths",85)))
+data1: org.apache.spark.rdd.RDD[(String, Int)] = ParallelCollectionRDD[1] at parallelize at <console>:22
+
+scala> val data2=spark.sparkContext.parallelize(list(10,20,30,40))
+<console>:22: error: not found: value list
+Error occurred in an application involving default arguments.
+       val data2=spark.sparkContext.parallelize(list(10,20,30,40))
+                                                ^
+
+scala> val data2=spark.sparkContext.parallelize(list(10,20,30,40))
+<console>:22: error: not found: value list
+Error occurred in an application involving default arguments.
+       val data2=spark.sparkContext.parallelize(list(10,20,30,40))
+                                                ^
+
+scala> val data2=spark.sparkContext.parallelize(List(10,20,30,40))
+data2: org.apache.spark.rdd.RDD[Int] = ParallelCollectionRDD[2] at parallelize at <console>:22
+
+scala> data2.for(list <- List)
+<console>:1: error: identifier expected but 'for' found.
+       data2.for(list <- List)
+             ^
+
+scala> data2.collect()
+res1: Array[Int] = Array(10, 20, 30, 40)
+
+scala> println(data2)
+ParallelCollectionRDD[2] at parallelize at <console>:22
+
+scala> data2.foreach(println)
+20
+30
+10
+40
+
+scala> val mydata=sc.textfile("/home/dbda
+<console>:1: error: unclosed string literal
+       val mydata=sc.textfile("/home/dbda
+                              ^
+
+scala> val mydata=sc.textfile("/home/dbda/myinput.txt")
+<console>:23: error: value textfile is not a member of org.apache.spark.SparkContext
+       val mydata=sc.textfile("/home/dbda/myinput.txt")
+                     ^
+
+scala> val mydata=sc.textFile("/home/dbda/myinput.txt")
+mydata: org.apache.spark.rdd.RDD[String] = /home/dbda/myinput.txt MapPartitionsRDD[4] at textFile at <console>:23
+
+scala> mydata.collect
+res4: Array[String] = Array(apple apple ball, ball apple orange, pink pink blue, blue pink red, "", "", "")
+
+scala> mydata.map(_.split(" ")).collect
+res5: Array[Array[String]] = Array(Array(apple, apple, ball), Array(ball, apple, orange), Array(pink, pink, blue), Array(blue, pink, red), Array(""), Array(""), Array(""))
+
+scala> mydata.flatten(_.split(" ")).collect
+<console>:24: error: value flatten is not a member of org.apache.spark.rdd.RDD[String]
+       mydata.flatten(_.split(" ")).collect
+              ^
+
+scala> mydata.flatmap(_.split(" ")).collect
+<console>:24: error: value flatmap is not a member of org.apache.spark.rdd.RDD[String]
+       mydata.flatmap(_.split(" ")).collect
+              ^
+
+scala> mydata.flatMap(_.split(" ")).collect
+res8: Array[String] = Array(apple, apple, ball, ball, apple, orange, pink, pink, blue, blue, pink, red, "", "", "")
+
+scala> val mapData=MyData.map(x => x.toUpperCase())
+<console>:22: error: not found: value MyData
+       val mapData=MyData.map(x => x.toUpperCase())
+                   ^
+
+scala> val mapData=myData.map(x => x.toUpperCase())
+<console>:22: error: not found: value myData
+       val mapData=myData.map(x => x.toUpperCase())
+                   ^
+
+scala> val mapData=mydata.map(x => x.toUpperCase())
+mapData: org.apache.spark.rdd.RDD[String] = MapPartitionsRDD[7] at map at <console>:23
+
+scala> mapData.collect
+res9: Array[String] = Array(APPLE APPLE BALL, BALL APPLE ORANGE, PINK PINK BLUE, BLUE PINK RED, "", "", "")
+
+scala> val mapData=mydata.map(x => x.toLowerCase())
+mapData: org.apache.spark.rdd.RDD[String] = MapPartitionsRDD[8] at map at <console>:23
+
+scala> mapData.collect
+res10: Array[String] = Array(apple apple ball, ball apple orange, pink pink blue, blue pink red, "", "", "")
+
+scala> mapData.
+++                         copy                  foreach                 isEmpty                  pipe                 sortBy            top               
+aggregate                  count                 foreachAsync            iterator                 preferredLocations   sparkContext      treeAggregate     
+barrier                    countApprox           foreachPartition        keyBy                    productArity         subtract          treeReduce        
+cache                      countApproxDistinct   foreachPartitionAsync   localCheckpoint          productElement       take              union             
+canEqual                   countAsync            getCheckpointFile       map                      productIterator      takeAsync         unpersist         
+cartesian                  countByValue          getNumPartitions        mapPartitions            productPrefix        takeOrdered       withResources     
+checkpoint                 countByValueApprox    getResourceProfile      mapPartitionsWithIndex   randomSplit          takeSample        zip               
+cleanShuffleDependencies   dependencies          getStorageLevel         max                      reduce               toDF              zipPartitions     
+coalesce                   distinct              glom                    min                      repartition          toDS              zipWithIndex      
+collect                    filter                groupBy                 name                     sample               toDebugString     zipWithUniqueId   
+collectAsync               first                 id                      partitioner              saveAsObjectFile     toJavaRDD                           
+compute                    flatMap               intersection            partitions               saveAsTextFile       toLocalIterator                     
+context                    fold                  isCheckpointed          persist                  setName              toString                            
+
+scala> mapData.count
+res11: Long = 7
+
+scala> mapData.min
+res12: String = ""
+
+scala> mapData.max
+res13: String = pink pink blue
+
+scala> mapData.first
+res14: String = apple apple ball
+
+scala> mapData.fold
+<console>:24: error: missing argument list for method fold in class RDD
+Unapplied methods are only converted to functions when a function type is expected.
+You can make this conversion explicit by writing `fold _` or `fold(_)(_)` instead of `fold`.
+       mapData.fold
+               ^
+
+scala> mapData.foldleft("HI")(_+_)
+<console>:24: error: value foldleft is not a member of org.apache.spark.rdd.RDD[String]
+       mapData.foldleft("HI")(_+_)
+               ^
+
+scala> mapData.foldleft(10)(_+_)
+<console>:24: error: value foldleft is not a member of org.apache.spark.rdd.RDD[String]
+       mapData.foldleft(10)(_+_)
+               ^
+
+scala> mapData.Foldleft(10)(_+_)
+<console>:24: error: value Foldleft is not a member of org.apache.spark.rdd.RDD[String]
+       mapData.Foldleft(10)(_+_)
+               ^
+
+scala> mapData.
+++                         copy                  foreach                 isEmpty                  pipe                 sortBy            top               
+aggregate                  count                 foreachAsync            iterator                 preferredLocations   sparkContext      treeAggregate     
+barrier                    countApprox           foreachPartition        keyBy                    productArity         subtract          treeReduce        
+cache                      countApproxDistinct   foreachPartitionAsync   localCheckpoint          productElement       take              union             
+canEqual                   countAsync            getCheckpointFile       map                      productIterator      takeAsync         unpersist         
+cartesian                  countByValue          getNumPartitions        mapPartitions            productPrefix        takeOrdered       withResources     
+checkpoint                 countByValueApprox    getResourceProfile      mapPartitionsWithIndex   randomSplit          takeSample        zip               
+cleanShuffleDependencies   dependencies          getStorageLevel         max                      reduce               toDF              zipPartitions     
+coalesce                   distinct              glom                    min                      repartition          toDS              zipWithIndex      
+collect                    filter                groupBy                 name                     sample               toDebugString     zipWithUniqueId   
+collectAsync               first                 id                      partitioner              saveAsObjectFile     toJavaRDD                           
+compute                    flatMap               intersection            partitions               saveAsTextFile       toLocalIterator                     
+context                    fold                  isCheckpointed          persist                  setName              toString                            
+
+scala> mapData.countByValue("apple")
+<console>:24: error: no arguments allowed for nullary method countByValue: ()(implicit ord: Ordering[String])scala.collection.Map[String,Long]
+       mapData.countByValue("apple")
+                            ^
+
+scala> val mapData=mydata.map(x => x.toLowerCase())
+mapData: org.apache.spark.rdd.RDD[String] = MapPartitionsRDD[9] at map at <console>:23
+
+scala> mapData.savaAsTestFile("/home/dbda/Desktop/upper_output")
+<console>:24: error: value savaAsTestFile is not a member of org.apache.spark.rdd.RDD[String]
+       mapData.savaAsTestFile("/home/dbda/Desktop/upper_output")
+               ^
+
+scala> mapData.saveAsTextFile("/home/dbda/Desktop/upper_output")
+
+scala> cat /home/dbda/Desktop/upper_output
+<console>:23: error: not found: value cat
+       cat /home/dbda/Desktop/upper_output
+       ^
+<console>:23: error: not found: value home
+       cat /home/dbda/Desktop/upper_output
+            ^
+<console>:23: error: not found: value dbda
+       cat /home/dbda/Desktop/upper_output
+                 ^
+<console>:23: error: not found: value Desktop
+       cat /home/dbda/Desktop/upper_output
+                      ^
+<console>:23: error: not found: value upper_output
+       cat /home/dbda/Desktop/upper_output
+                              ^
+
+scala> mapData.map.split("").count.count
+<console>:24: error: missing argument list for method map in class RDD
+Unapplied methods are only converted to functions when a function type is expected.
+You can make this conversion explicit by writing `map _` or `map(_)(_)` instead of `map`.
+       mapData.map.split("").count.count
+               ^
+
+scala> mapData.map.split("").count.collect
+<console>:24: error: missing argument list for method map in class RDD
+Unapplied methods are only converted to functions when a function type is expected.
+You can make this conversion explicit by writing `map _` or `map(_)(_)` instead of `map`.
+       mapData.map.split("").count.collect
+               ^
+
+scala> mapData.map.(_.split("")).count.collect
+<console>:1: error: identifier expected but '(' found.
+       mapData.map.(_.split("")).count.collect
+                   ^
+
+scala> mapData.map(_.split("")).count.collect
+<console>:24: error: value collect is not a member of Long
+       mapData.map(_.split("")).count.collect
+                                      ^
+
+scala> mapData.map(_.split("")).count.collectmydata.map(_.split(" ")).collect
+<console>:24: error: value collectmydata is not a member of Long
+       mapData.map(_.split("")).count.collectmydata.map(_.split(" ")).collect
+                                      ^
+
+scala> mydata.map(_.split(" ")).collect
+res27: Array[Array[String]] = Array(Array(apple, apple, ball), Array(ball, apple, orange), Array(pink, pink, blue), Array(blue, pink, red), Array(""), Array(""), Array(""))
+
+scala> myData.map(_.split(" ")).count.collect
+<console>:23: error: not found: value myData
+       myData.map(_.split(" ")).count.collect
+       ^
+
+scala> mydata.map(_.split(" ")).count.collect
+<console>:24: error: value collect is not a member of Long
+       mydata.map(_.split(" ")).count.collect
+                                      ^
+
+scala> var a =mydata.map(_.split(" ")).count
+a: Long = 7
+
+scala> a.collect
+<console>:24: error: value collect is not a member of Long
+       a.collect
+         ^
+
+scala> a.
+!=   /    >=          ceil          getClass        isPosInfinity   isWhole     shortValue       toDegrees     toOctalString   underlying   
+%    <    >>          compare       intValue        isValidByte     longValue   signum           toDouble      toRadians       until        
+&    <<   >>>         compareTo     isInfinite      isValidChar     max         to               toFloat       toShort         |            
+*    <=   ^           doubleValue   isInfinity      isValidInt      min         toBinaryString   toHexString   unary_+                      
++    ==   abs         floatValue    isNaN           isValidLong     round       toByte           toInt         unary_-                      
+-    >    byteValue   floor         isNegInfinity   isValidShort    self        toChar           toLong        unary_~                      
+
+scala> print(a)
+7
+scala> val mydata1=sc.textFile("/home/dbda/myinput2.txt")
+mydata1: org.apache.spark.rdd.RDD[String] = /home/dbda/myinput2.txt MapPartitionsRDD[14] at textFile at <console>:23
+
+scala> mydata1.collect
+res32: Array[String] = Array(A document with only text and no images. The formatting codes embedded in a word processing file are not normally visible but may contain other the.)
+
+scala> var b=mydata1.map(_.split(" ")).count
+b: Long = 1
+
+scala> print(b)
+1
+scala> mydata1.count
+res34: Long = 1
+
+scala> type(b)
+<console>:1: error: identifier expected but '(' found.
+       type(b)
+           ^
+
+scala> b.
+!=   /    >=          ceil          getClass        isPosInfinity   isWhole     shortValue       toDegrees     toOctalString   underlying   
+%    <    >>          compare       intValue        isValidByte     longValue   signum           toDouble      toRadians       until        
+&    <<   >>>         compareTo     isInfinite      isValidChar     max         to               toFloat       toShort         |            
+*    <=   ^           doubleValue   isInfinity      isValidInt      min         toBinaryString   toHexString   unary_+                      
++    ==   abs         floatValue    isNaN           isValidLong     round       toByte           toInt         unary_-                      
+-    >    byteValue   floor         isNegInfinity   isValidShort    self        toChar           toLong        unary_~                      
+
+scala> b.getClass
+res35: Class[Long] = long
+
+scala> b.map(_.split(" ")).count
+<console>:24: error: value map is not a member of Long
+       b.map(_.split(" ")).count
+         ^
+
+scala> b.tochar
+<console>:24: error: value tochar is not a member of Long
+       b.tochar
+         ^
+
+scala> b.to
+to   toBinaryString   toByte   toChar   toDegrees   toDouble   toFloat   toHexString   toInt   toLong   toOctalString   toRadians   toShort   toString
+
+scala> b.to
+                                                                                              
+def to(end: Float,step: Float): scala.collection.immutable.NumericRange.Inclusive[Float]      
+def to(end: Long,step: Long): scala.collection.immutable.NumericRange.Inclusive[Long]         
+def to(end: Long): scala.collection.immutable.NumericRange.Inclusive[Long]                    
+def to(end: Double,step: Double): scala.collection.immutable.NumericRange.Inclusive[Double]   
+def to(end: Float): Range.Partial[Float,scala.collection.immutable.NumericRange[Float]]       
+def to(end: Double): Range.Partial[Double,scala.collection.immutable.NumericRange[Double]]    
+
+scala> b.toChar
+res38: Char = ?
+
+scala> val mydata2=sc.textFile("/home/dbda/myinput2.txt")
+mydata2: org.apache.spark.rdd.RDD[String] = /home/dbda/myinput2.txt MapPartitionsRDD[17] at textFile at <console>:23
+
+scala> mydata2.collect
+res39: Array[String] = Array(A document with only text and no images The formatting codes embedded in a word processing file are not normally visible but may contain other the)
+
+scala> mydata2.map(_.split(" ").collect
+     | ;
+<console>:2: error: ')' expected but ';' found.
+       ;
+       ^
+
+scala> mydata2.map(_.split(" ")0.collect
+<console>:1: error: ')' expected but integer literal found.
+       mydata2.map(_.split(" ")0.collect
+                               ^
+
+scala> mydata2.map(_.split(" ")).collect
+res40: Array[Array[String]] = Array(Array(A, document, with, only, text, and, no, images, The, formatting, codes, embedded, in, a, word, processing, file, are, not, normally, visible, but, may, contain, other, the))
+
+scala> var c=mydata2.map(_.split(" ")).count
+c: Long = 1
+
+scala> mydata2.flatMap(_.split(" ")).count
+res41: Long = 26
+
+scala> var ans=mydata2.flatMap(_.split(" ")).count
+ans: Long = 26
+
+scala> print(ans)
+26
+scala> val rdd1 =mapData2.flatMap(_.split("")).map(m => (m,1)).reduceByKey(_+_)
+<console>:22: error: not found: value mapData2
+       val rdd1 =mapData2.flatMap(_.split("")).map(m => (m,1)).reduceByKey(_+_)
+                 ^
+
+scala> val rdd1 =myData2.flatMap(_.split("")).map(m => (m,1)).reduceByKey(_+_)
+<console>:22: error: not found: value myData2
+       val rdd1 =myData2.flatMap(_.split("")).map(m => (m,1)).reduceByKey(_+_)
+                 ^
+
+scala> val rdd1 =mydata2.flatMap(_.split("")).map(m => (m,1)).reduceByKey(_+_)
+rdd1: org.apache.spark.rdd.RDD[(String, Int)] = ShuffledRDD[24] at reduceByKey at <console>:23
+
+scala> print(rdd1)
+ShuffledRDD[24] at reduceByKey at <console>:23
+scala> rdd1.collect
+res44: Array[(String, Int)] = Array((T,1), (d,7), (p,1), (x,1), (t,11), (b,3), (h,4), (" ",25), (n,11), (f,2), (v,1), (r,6), (l,5), (w,2), (s,5), (e,14), (a,8), (i,9), (y,3), (A,1), (u,2), (o,11), (g,3), (m,6), (c,4))
+
+scala> rdd1.forEach(println)
+<console>:24: error: value forEach is not a member of org.apache.spark.rdd.RDD[(String, Int)]
+       rdd1.forEach(println)
+            ^
+
+scala> val rdd1 =mydata2.flatMap(_.split(" ")).map(m => (m,1)).reduceByKey(_+_)
+rdd1: org.apache.spark.rdd.RDD[(String, Int)] = ShuffledRDD[27] at reduceByKey at <console>:23
+
+scala> rdd1.collect
+res46: Array[(String, Int)] = Array((are,1), (codes,1), (images,1), (with,1), (only,1), (normally,1), (embedded,1), (word,1), (visible,1), (other,1), (file,1), (contain,1), (not,1), (The,1), (a,1), (text,1), (A,1), (no,1), (processing,1), (in,1), (formatting,1), (document,1), (but,1), (and,1), (may,1), (the,1))
+
+scala> rdd1.forEach(println)
+<console>:24: error: value forEach is not a member of org.apache.spark.rdd.RDD[(String, Int)]
+       rdd1.forEach(println)
+            ^
+
+scala> rdd1.foreach(println)
+(are,1)
+(not,1)
+(The,1)
+(codes,1)
+(a,1)
+(images,1)
+(text,1)
+(with,1)
+(A,1)
+(only,1)
+(no,1)
+(normally,1)
+(embedded,1)
+(word,1)
+(visible,1)
+(other,1)
+(file,1)
+(contain,1)
+(processing,1)
+(in,1)
+(formatting,1)
+(document,1)
+(but,1)
+(and,1)
+(may,1)
+(the,1)
+
+scala> rdd1
+
+

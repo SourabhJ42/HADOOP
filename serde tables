@@ -1,0 +1,235 @@
+create table employees
+(
+emo_name string,
+emp_work_loc array<string>,
+emp_gen_age struct<sex:string,age:int>,
+emp_skill_score MAP<string,int>,
+emp_dept_title MAP<STRING,ARRAY<STRING>>
+)
+ROW FORMAT DELIMITED 
+FIELDS TERMINATED BY '|'
+COLLECTION ITEMS TERMINATED BY ':'
+MAP KEYS TERMINATED BY ':';
+
+
+------------------------------------------------------------------------------------------------------
+
+CREATE EXTERNAL TABLE IF NOT EXISTS EMPLOYEE_EXTERNAL
+
+(
+NAME STRING,
+WORK_PLACE ARRAY<STRING>,
+SEX_AGE STRUCT <SEX:STRING, AGE:INT>,
+skill_score MAP<string,int>,
+dept_title MAP<STRING,ARRAY<STRING>>
+)
+
+COMMENT 'THIS IS AN EXTERNAL TABLE'
+ROW FORMAT DELIMITED 
+FIELDS TERMINATED BY '|'
+COLLECTION ITEMS TERMINATED BY ':'
+MAP KEYS TERMINATED BY ':'
+STORED AS TEXTFILE
+LOCATION '/DATA1111/';
+
+-----------------------------------------------------------------------------------------------------
+
+CREATE VIEW EMPLOYEE_SKILLS
+AS
+SELECT NAME, SKILLS_SCORE  ['DB'] AS DB,
+SKILLS_SCORE['PERL'] AS PERL, SKILLS_SCORE['PYTHON'] AS PYTHON,
+SKILLS_SCORE['SALES'] AS SALES, SKILLS_SCORE['HR'] AS HR
+FROM EMPLOYEE_EXTERNAL;
+
+set hive.cli.print.current.db=true;
+
+-------------------------------------------------------------------------------------------------------
+create table student
+(
+name string,
+rollno int,
+per float
+)
+partitioned by(state string,city string)
+row format delimited
+fields terminated by ',';
+
+---------------------------------------------------------------------------------------------------
+load data local inpath '/media/sf_MyWork/HiveData/partstudmah' into table student partition(state='mah',city='pune');
+
+load data local inpath '/media/sf_MyWork/HiveData/partstudgujart' into table student partition(state='Gujrat',city='Surat');
+---------------------------------------------------------------------------------------
+# property to enable dynamic partition
+
+> set hive.exec.dynamic.partition=true;
+> set hive.exec.dynamic.partion.mode=nonstrict;
+
+=========================================================================================
+#create table with dynamic partitions 
+
+create table student1(name string,rollno int,per float,state string,city string)
+row format delimited
+fields terminated by ',';
+
+load data local inpath '/media/sf_MyWork/HiveData/partstud1' into table student1;
+
+#this runs map reduce job in background to run through all partition and count no of recordl
+select count(*) from student1;
+
+create table stud_part(name string,rollno int,per float)
+partitioned by(state string,city string)
+row format delimited
+fields terminated by ',';
+
+insert into table stud_part partion (state,city) select name,rollno,per,state,city from student1;
+
+===============================bucketing=====================
+create table sample_table1(id int,firstName string,lastName string)
+row format delimited
+fields terminated by ','
+stored as textfile;
+
+
+create table my_bucket_table(id int,fName string,lName string)
+clustered by (id) into 3 buckets
+row format delimited
+fields terminated by ','
+stored as textfile
+ 
+
+#property to enable bucketing
+set hive.enfore.bucketing=true;
+
+#inserting data into bucketed table from normal table
+insert into table my_bucket_table select * from sample_table1;
+
+====================creating serde json table==================
+{"userId":"rirani",
+"jobTitleName":"Developer",
+"firstName":"Romin",
+"lastName":"Irani",
+"preferredFullName":"RominIrani",
+"employeeCode":"E1",
+"region":"CA",
+"phoneNumber":"408-1234567",
+"emailAddress":"romin.k.irani@gmail
+
+create table employee_json
+(
+userId string,
+jobTitleName string,
+firstName string,
+lastName string,
+preferredfullname string,
+employeeCode string,
+region string,
+phoneNumber string,
+emailAddress string
+)
+row format serde 'org.apache.hadoop.hive.contrib.serde2.JsonSerde';
+
+
+======================reading xml file in hive============================
+#adding xml jar provided by someone from ibm
+add jar hivexmlserde-1.0.5.2.jar;
+
+create table user_xml(id int,name string)
+row format serde 'com.ibm.spss.hive.serde2.xml.XmlSerDe'
+with serdeproperties(
+"column.xpath.id"="/user/id/text()",
+"column.xpath.name"="/user/name/text()"
+)
+stored as 
+inputformat 'com.ibm.spss.hive.serde2.xml.XmlInputFormat'
+outputformat 'org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat'
+tblproperties(
+"xmlinput.start"="<user>",
+"xmlinput.end"="</user>"
+);
+
+=====================aggregate functions=====================================
+create table owners(ownerid int,oname string,age int,carid int)
+row format delimited
+fields terminated by ','
+stored as textfile;
+
+load data local inpath '/home/admin1/owners.txt' into table owners;
+
+create table cars(carid int,cname string,model string,year string)
+row format delimited
+fields terminated by ','
+stored as textfile;
+
+load data local inpath '/home/admin1/cars.txt' into table cars;
+# this query doesn't work
+select cname from cars inner join owners on(cars.carid=owners.carid) where count(cars.cname) > 1;
+# this gives the cname which has more than one car model
+select cname from cars group by cname having count(cname) > 1;
+
+
+===================================join assignment==========================================
+Customers Schema:
+1.	customer_id             int   
+2.	customer_fname          string
+3.	customer_lname          string
+4.	customer_email          string
+5.	customer_password       string
+6.	customer_street         string
+7.	customer_city           string
+8.	customer_state          string
+9.	customer_zipcode        string
+
+Orders Schema:
+1.	order_id                int   
+2.	order_date              string
+3.	order_customer_id       int   
+4.	order_status            string
+
+
+create table Customers
+(
+customer_id int,
+customer_fname string,
+customer_lname string,
+customer_email string,
+customer_password string,
+customer_street string,
+customer_city string,
+customer_state string,
+customer_zipcode string
+)
+row format delimited
+fields terminated by ','
+stored as textfile;
+
+load data local inpath '/home/admin1/join assignment/customers.txt' into table customers;
+
+create table orders
+(
+order_id int,order_date string,
+order_customer_id int,
+order_status string
+)
+row format delimited
+fields terminated by ','
+stored as textfile;
+
+load data local inpath '/home/admin1/join assignment/orders.txt' into table orders;
+
+Output Requirements:
+1.	Find out the customers who have made more than 5 orders
+2.	Customer name must start with "M"
+3.	Use text format for the output files
+4.	Use "|" as field seperator
+5.	Use gzip compression
+6.	Place the result data in HDFS directory /user/'username'/mock2/problem1/solution
+7.	Output should only contain customer_fname,customer_lname, count
+8.	Output should be sorted by count in descending order
+
+select c.customer_fname,c.customer_lname, count(o.order_customer_id) as cnt
+from customers c inner join orders o on(c.customer_id=o.order_customer_id)
+where customer_fname like 'M%'
+group by c.customer_fname,c.customer_lname
+having count(o.order_customer_id)>5
+order by cnt desc;
+

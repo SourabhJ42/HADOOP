@@ -1,0 +1,285 @@
+Question 1:
+
+Data Description:
+1.	All the product records are stored at products
+2.	Data is in text format
+Products Schema:
+1.	product_id              int                                         
+2.	product_category_id     int                                         
+3.	product_name            string                                      
+4.	product_description     string                                      
+5.	product_price           double                                      
+6.	product_image           string   
+Output Requirements:
+1.	Output should only contain the products with price less than 1000.0
+2.	Output should only contain the data where product_name contains 
+"Vector Series"
+3.	Use Avro format for the output files
+4.	Place the result data in HDFS directory /Exam/Q1
+5.	Compress the output using deflate compression
+
+question 2:
+
+Data Description:
+1.	All the product records are stored at  products_avro
+2.	Data is in avro format
+3.	Data is compressed with snappy compression
+Output Requirements:
+1.	Output should contain all the products
+2.	Save output as a sequence file
+3.	Place the result data in HDFS directory /Exam/Q2
+4.	Use no compression
+NOTE:
+1.	Use below command to start spark shell on VM 
+2.	spark-shell --packages org.apache.spark:spark-avro_2.11:2.4.4
+
+
+Question 3:
+
+Data Description:
+1.	All the customer records are stored at customers-avro
+2.	Data is in avro format
+Customers Schema:
+1.	customer_id             int   
+2.	customer_fname          string
+3.	customer_lname          string
+4.	customer_email          string
+Sample Output:
+1.	1001 P Chauhan 
+2.	1002 S Jones 
+Output Requirements:
+1.	Convert all data into tab delimited file
+2.	Use text format for the output files
+3.	Place the result data at /Exam/Q2
+4.	Output should only contain customer_id, customer_name
+	(only first character of first name and complete last name separated by space)
+
+
+
+Why this happened ?
+
+
+
+scala> d.toDF
+res9: org.apache.spark.sql.DataFrame = [value: array<string>]
+
+scala> res9.collect
+res10: Array[org.apache.spark.sql.Row] = Array([WrappedArray(1010, 46, DBX Vector Series Men's Nylon Life Vest, , 19.98, http://images.acmesports.sports/DBX+Vector+Series+Men%27s+Nylon+Life+Vest)], [WrappedArray(1017, 46, DBX Vector Series Women's Nylon Life Vest, , 19.98, http://images.acmesports.sports/DBX+Vector+Series+Women%27s+Nylon+Life+Vest)], [WrappedArray(1027, 46, DBX Vector Series Youth Nylon Life Vest, , 34.99, http://images.acmesports.sports/DBX+Vector+Series+Youth+Nylon+Life+Vest)], [WrappedArray(1060, 48, DBX Vector Series Men's Nylon Life Vest, , 19.98, http://images.acmesports.sports/DBX+Vector+Series+Men%27s+Nylon+Life+Vest)], [WrappedArray(1068, 48, DBX Vector Series Women's Nylon Life Vest, , 19.98, http://images.acmesports.sports/DBX+Vector...
+
+scala> 
+
+
+
+
+
+
+
+scala> val customer=sc.textFile("/home/dbda/Downloads/sourabh_file/customers")
+customer: org.apache.spark.rdd.RDD[String] = /home/dbda/Downloads/sourabh_file/customers MapPartitionsRDD[1] at textFile at <console>:23
+
+scala> val as = customer.map(x => x.split(","))
+as: org.apache.spark.rdd.RDD[Array[String]] = MapPartitionsRDD[2] at map at <console>:23
+
+scala> as.collect
+res0: Array[Array[String]] = Array(Array(9327, Donna, Smith, XXXXXXXXX, XXXXXXXXX, 4114 Clear Nectar Isle, Caguas, PR, 00725), Array(9328, Mary, Perez, XXXXXXXXX, XXXXXXXXX, 376 Golden Orchard, Moreno Valley, CA, 92553), Array(9329, Eugene, Powell, XXXXXXXXX, XXXXXXXXX, 2161 Burning Maze, Metairie, LA, 70003), Array(9330, Mary, Conley, XXXXXXXXX, XXXXXXXXX, 3046 Broad Sky Dale, Caguas, PR, 00725), Array(9331, Donna, Smith, XXXXXXXXX, XXXXXXXXX, 941 Thunder Branch Heights, Clementon, NJ, 08021), Array(9332, Mary, Jordan, XXXXXXXXX, XXXXXXXXX, 1551 Quaking Bend, Caguas, PR, 00725), Array(9333, Angela, Mills, XXXXXXXXX, XXXXXXXXX, 2580 Rustic Bay, Los Angeles, CA, 90026), Array(9334, Mary, Johnston, XXXXXXXXX, XXXXXXXXX, 4145 Jagged Downs, Tampa, FL, 33624), Array...
+
+scala> val bs = as.filter(x =>(x(0).contains("1001") or x(0).contains("1002")))
+<console>:23: error: value or is not a member of Boolean
+       val bs = as.filter(x =>(x(0).contains("1001") or x(0).contains("1002")))
+                                                     ^
+
+scala> val bs = as.filter(x =>(x(0).contains("1001") || x(0).contains("1002")))
+bs: org.apache.spark.rdd.RDD[Array[String]] = MapPartitionsRDD[3] at filter at <console>:23
+
+scala> bs.collect
+res1: Array[Array[String]] = Array(Array(10010, Patrick, Diaz, XXXXXXXXX, XXXXXXXXX, 1400 Silent Run, Phoenix, AZ, 85033), Array(10011, Mary, Gonzales, XXXXXXXXX, XXXXXXXXX, 5163 Velvet Private, Long Beach, CA, 90806), Array(10012, Robert, Montoya, XXXXXXXXX, XXXXXXXXX, 3282 Lost Gate, Lynnwood, WA, 98037), Array(10013, Jessica, Smith, XXXXXXXXX, XXXXXXXXX, 9809 Indian Berry Hollow, Caguas, PR, 00725), Array(10014, Janet, Williams, XXXXXXXXX, XXXXXXXXX, 9890 Pleasant Highway, Greeley, CO, 80631), Array(10015, Hannah, Wolfe, XXXXXXXXX, XXXXXXXXX, 8050 Velvet Pond Drive, Caguas, PR, 00725), Array(10016, Mary, Cooley, XXXXXXXXX, XXXXXXXXX, 4569 Indian Walk, Brooklyn, NY, 11204), Array(10017, John, Smith, XXXXXXXXX, XXXXXXXXX, 4583 Heather Blossom Diversion, Burnsv...
+
+scala> val bs = as.filter(x =>(x(0).contains("%1001%") || x(0).contains("1002")))
+bs: org.apache.spark.rdd.RDD[Array[String]] = MapPartitionsRDD[4] at filter at <console>:23
+
+scala> val bs = as.filter(x =>(x(0).contains("%1001%") || x(0).contains("%1002%")))
+bs: org.apache.spark.rdd.RDD[Array[String]] = MapPartitionsRDD[5] at filter at <console>:23
+
+scala> bs.collect
+res2: Array[Array[String]] = Array()
+
+scala> val bs = as.filter(x =>(x(0).")))
+*                 compare               forall               lastIndexWhere        reduceOption          splitAt         toIterator      
++                 compareTo             foreach              lastOption            reduceRight           startsWith      toList          
+++                compareToIgnoreCase   format               length                reduceRightOption     stringPrefix    toLong          
+++:               compose               formatLocal          lengthCompare         regionMatches         strip           toLowerCase     
++:                concat                genericBuilder       lift                  repeat                stripLeading    toMap           
+/:                contains              getBytes             lines                 replace               stripLineEnd    toSeq           
+:+                containsSlice         getChars             linesIterator         replaceAll            stripMargin     toSet           
+:\                contentEquals         groupBy              linesWithSeparators   replaceAllLiterally   stripPrefix     toShort         
+<                 copyToArray           grouped              map                   replaceFirst          stripSuffix     toStream        
+<=                copyToBuffer          hasDefiniteSize      matches               repr                  stripTrailing   toString        
+>                 corresponds           hashCode             max                   reverse               subSequence     toTraversable   
+>=                count                 head                 maxBy                 reverseIterator       substring       toUpperCase     
+addString         diff                  headOption           min                   reverseMap            sum             toVector        
+aggregate         distinct              indexOf              minBy                 runWith               tail            transpose       
+andThen           drop                  indexOfSlice         mkString              sameElements          tails           trim            
+apply             dropRight             indexWhere           nonEmpty              scan                  take            union           
+applyOrElse       dropWhile             indices              offsetByCodePoints    scanLeft              takeRight       unzip           
+canEqual          endsWith              init                 orElse                scanRight             takeWhile       unzip3          
+capitalize        equals                inits                padTo                 segmentLength         to              updated         
+charAt            equalsIgnoreCase      intern               par                   self                  toArray         view            
+chars             exists                intersect            partition             seq                   toBoolean       withFilter      
+codePointAt       filter                isBlank              patch                 size                  toBuffer        zip             
+codePointBefore   filterNot             isDefinedAt          permutations          slice                 toByte          zipAll          
+codePointCount    find                  isEmpty              prefixLength          sliding               toCharArray     zipWithIndex    
+codePoints        flatMap               isTraversableAgain   product               sortBy                toDouble                        
+collect           flatten               iterator             r                     sortWith              toFloat                         
+collectFirst      fold                  last                 reduce                sorted                toIndexedSeq                    
+combinations      foldLeft              lastIndexOf          reduceLeft            span                  toInt                           
+companion         foldRight             lastIndexOfSlice     reduceLeftOption      split                 toIterable                      
+
+scala> val bs = as.filter(x =>(x(0).toInt.contains(1000)
+     | val bs = as.filter(x =>(x(0).to   ;
+<console>:2: error: ')' expected but 'val' found.
+       val bs = as.filter(x =>(x(0).to	;
+       ^
+
+scala> val bs = as.filter(x =>(x(0).
+*                 compare               forall               lastIndexWhere        reduceOption          splitAt         toIterator      
++                 compareTo             foreach              lastOption            reduceRight           startsWith      toList          
+++                compareToIgnoreCase   format               length                reduceRightOption     stringPrefix    toLong          
+++:               compose               formatLocal          lengthCompare         regionMatches         strip           toLowerCase     
++:                concat                genericBuilder       lift                  repeat                stripLeading    toMap           
+/:                contains              getBytes             lines                 replace               stripLineEnd    toSeq           
+:+                containsSlice         getChars             linesIterator         replaceAll            stripMargin     toSet           
+:\                contentEquals         groupBy              linesWithSeparators   replaceAllLiterally   stripPrefix     toShort         
+<                 copyToArray           grouped              map                   replaceFirst          stripSuffix     toStream        
+<=                copyToBuffer          hasDefiniteSize      matches               repr                  stripTrailing   toString        
+>                 corresponds           hashCode             max                   reverse               subSequence     toTraversable   
+>=                count                 head                 maxBy                 reverseIterator       substring       toUpperCase     
+addString         diff                  headOption           min                   reverseMap            sum             toVector        
+aggregate         distinct              indexOf              minBy                 runWith               tail            transpose       
+andThen           drop                  indexOfSlice         mkString              sameElements          tails           trim            
+apply             dropRight             indexWhere           nonEmpty              scan                  take            union           
+applyOrElse       dropWhile             indices              offsetByCodePoints    scanLeft              takeRight       unzip           
+canEqual          endsWith              init                 orElse                scanRight             takeWhile       unzip3          
+capitalize        equals                inits                padTo                 segmentLength         to              updated         
+charAt            equalsIgnoreCase      intern               par                   self                  toArray         view            
+chars             exists                intersect            partition             seq                   toBoolean       withFilter      
+codePointAt       filter                isBlank              patch                 size                  toBuffer        zip             
+codePointBefore   filterNot             isDefinedAt          permutations          slice                 toByte          zipAll          
+codePointCount    find                  isEmpty              prefixLength          sliding               toCharArray     zipWithIndex    
+codePoints        flatMap               isTraversableAgain   product               sortBy                toDouble                        
+collect           flatten               iterator             r                     sortWith              toFloat                         
+collectFirst      fold                  last                 reduce                sorted                toIndexedSeq                    
+combinations      foldLeft              lastIndexOf          reduceLeft            span                  toInt                           
+companion         foldRight             lastIndexOfSlice     reduceLeftOption      split                 toIterable                      
+
+scala> val bs = as.filter(x =>(x(0).toInt))
+<console>:23: error: type mismatch;
+ found   : Int
+ required: Boolean
+       val bs = as.filter(x =>(x(0).toInt))
+                                    ^
+
+scala> val bs = as.filter(x =>(x(0).contains(1000)
+     | ;
+<console>:2: error: ')' expected but ';' found.
+       ;
+       ^
+
+scala> val bs = as.filter(x =>(x(0).contains(1000))
+     | ;
+<console>:2: error: ')' expected but ';' found.
+       ;
+       ^
+
+scala> val bs = as.filter(x =>(x(0).contains("%1001%") || x(0).contains("1002")))
+bs: org.apache.spark.rdd.RDD[Array[String]] = MapPartitionsRDD[6] at filter at <console>:23
+
+scala> bs.collect
+res3: Array[Array[String]] = Array(Array(10020, Mary, Wall, XXXXXXXXX, XXXXXXXXX, 5351 Sleepy Autumn Range, Phoenix, AZ, 85035), Array(10021, Donald, Davila, XXXXXXXXX, XXXXXXXXX, 5292 Colonial Grounds, Caguas, PR, 00725), Array(10022, Alice, Smith, XXXXXXXXX, XXXXXXXXX, 851 Green Prairie Park, O Fallon, MO, 63366), Array(10023, Victoria, Knight, XXXXXXXXX, XXXXXXXXX, 9581 Burning Horse Centre, Newark, NJ, 07105), Array(10024, Mary, Shelton, XXXXXXXXX, XXXXXXXXX, 9117 Harvest Street, Caguas, PR, 00725), Array(10025, Alexander, Smith, XXXXXXXXX, XXXXXXXXX, 1513 Thunder Boulevard, Carolina, PR, 00985), Array(10026, Mary, Wilson, XXXXXXXXX, XXXXXXXXX, 2459 Round Spring Towers, Mcallen, TX, 78501), Array(10027, Robert, Foley, XXXXXXXXX, XXXXXXXXX, 5310 Easy Barn Ca...
+
+scala> val bs = as.filter(x =>(x(0).contains("1001") || x(0).contains("1002")))
+bs: org.apache.spark.rdd.RDD[Array[String]] = MapPartitionsRDD[7] at filter at <console>:23
+
+scala> bs.collect
+res4: Array[Array[String]] = Array(Array(10010, Patrick, Diaz, XXXXXXXXX, XXXXXXXXX, 1400 Silent Run, Phoenix, AZ, 85033), Array(10011, Mary, Gonzales, XXXXXXXXX, XXXXXXXXX, 5163 Velvet Private, Long Beach, CA, 90806), Array(10012, Robert, Montoya, XXXXXXXXX, XXXXXXXXX, 3282 Lost Gate, Lynnwood, WA, 98037), Array(10013, Jessica, Smith, XXXXXXXXX, XXXXXXXXX, 9809 Indian Berry Hollow, Caguas, PR, 00725), Array(10014, Janet, Williams, XXXXXXXXX, XXXXXXXXX, 9890 Pleasant Highway, Greeley, CO, 80631), Array(10015, Hannah, Wolfe, XXXXXXXXX, XXXXXXXXX, 8050 Velvet Pond Drive, Caguas, PR, 00725), Array(10016, Mary, Cooley, XXXXXXXXX, XXXXXXXXX, 4569 Indian Walk, Brooklyn, NY, 11204), Array(10017, John, Smith, XXXXXXXXX, XXXXXXXXX, 4583 Heather Blossom Diversion, Burnsv...
+
+scala> val bs = as.filter(x =>(x(0).matches(^1001$))
+<console>:1: error: Invalid literal number
+       val bs = as.filter(x =>(x(0).matches(^1001$))
+                                             ^
+
+scala> val bs = as.filter(x =>(x(0).matches(1001$))
+<console>:1: error: Invalid literal number
+       val bs = as.filter(x =>(x(0).matches(1001$))
+                                            ^
+
+scala> val bs = as.filter(x =>(x(0).matches(1001))
+     | val bs = as.filter(x =>(x(0).matches("1001"))
+<console>:2: error: ')' expected but 'val' found.
+       val bs = as.filter(x =>(x(0).matches("1001"))
+       ^
+
+scala> val bs = as.filter(x =>(x(0).matches("^1001"))
+     | ;
+<console>:2: error: ')' expected but ';' found.
+       ;
+       ^
+
+scala> val bs = as.filter(x =>(x(0).matches("^1001$"))
+     | ;
+<console>:2: error: ')' expected but ';' found.
+       ;
+       ^
+
+scala> val bs = as.filter(x =>(x(0).matches("\\d"))
+     | val bs = as.filter(x =>(x(0).matches("\\d")))
+<console>:2: error: ')' expected but 'val' found.
+       val bs = as.filter(x =>(x(0).matches("\\d")))
+       ^
+
+scala> val bs = as.filter(x =>x(0).matches("\\d"))
+bs: org.apache.spark.rdd.RDD[Array[String]] = MapPartitionsRDD[8] at filter at <console>:23
+
+scala> bs.collect
+res5: Array[Array[String]] = Array(Array(1, Richard, Hernandez, XXXXXXXXX, XXXXXXXXX, 6303 Heather Plaza, Brownsville, TX, 78521), Array(2, Mary, Barrett, XXXXXXXXX, XXXXXXXXX, 9526 Noble Embers Ridge, Littleton, CO, 80126), Array(3, Ann, Smith, XXXXXXXXX, XXXXXXXXX, 3422 Blue Pioneer Bend, Caguas, PR, 00725), Array(4, Mary, Jones, XXXXXXXXX, XXXXXXXXX, 8324 Little Common, San Marcos, CA, 92069), Array(5, Robert, Hudson, XXXXXXXXX, XXXXXXXXX, "10 Crystal River Mall ", Caguas, PR, 00725), Array(6, Mary, Smith, XXXXXXXXX, XXXXXXXXX, 3151 Sleepy Quail Promenade, Passaic, NJ, 07055), Array(7, Melissa, Wilcox, XXXXXXXXX, XXXXXXXXX, 9453 High Concession, Caguas, PR, 00725), Array(8, Megan, Smith, XXXXXXXXX, XXXXXXXXX, 3047 Foggy Forest Plaza, Lawrence, MA, 01841), Ar...
+
+scala> val bs = as.filter(x =>x(0).matches("^1001$"))
+bs: org.apache.spark.rdd.RDD[Array[String]] = MapPartitionsRDD[9] at filter at <console>:23
+
+scala> bs.collect
+res6: Array[Array[String]] = Array(Array(1001, Jane, Thomas, XXXXXXXXX, XXXXXXXXX, 8428 Blue Prairie Farm, Caguas, PR, 00725))
+
+scala> val bs = as.filter(x =>(x(0).matches("^1001$")|| x(0).matches("^1002$"))
+     | val bs = as.filter(x =>(x(0).matches("^1001$") || x(0).matches("^1002$"))
+<console>:2: error: ')' expected but 'val' found.
+       val bs = as.filter(x =>(x(0).matches("^1001$") || x(0).matches("^1002$"))
+       ^
+
+scala> val bs = as.filter(x =>(x(0).matches("^1001$") || x(1).matches("^1002$"))
+     | ;
+<console>:2: error: ')' expected but ';' found.
+       ;
+       ^
+
+scala> val bs = as.filter(x =>(x(0).matches("^1001$") || x(1).matches("^1002$")))
+bs: org.apache.spark.rdd.RDD[Array[String]] = MapPartitionsRDD[10] at filter at <console>:23
+
+scala> bs.collect
+res7: Array[Array[String]] = Array(Array(1001, Jane, Thomas, XXXXXXXXX, XXXXXXXXX, 8428 Blue Prairie Farm, Caguas, PR, 00725))
+
+scala> val ls = as.filter(x => x(1).matches("^1002$"))
+ls: org.apache.spark.rdd.RDD[Array[String]] = MapPartitionsRDD[11] at filter at <console>:23
+
+scala> ls.collect
+res8: Array[Array[String]] = Array()
+
+scala> val ls = as.filter(x => x(1).contains("1001"))
+ls: org.apache.spark.rdd.RDD[Array[String]] = MapPartitionsRDD[12] at filter at <console>:23
+
+scala> ls.collect
+res9: Array[Array[String]] = Array()
+
+scala> .matches("^1001$") 
+
+
+
+
