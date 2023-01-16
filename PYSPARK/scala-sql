@@ -1,0 +1,324 @@
+scala> val customer = ssq.read.csv("hdfs://localhost:9000/customers")
+customer: org.apache.spark.sql.DataFrame = [_c0: string, _c1: string ... 7 more fields]
+
+scala> val customer = ssq.read.csv("hdfs://localhost:9000/customers").persist()
+customer: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] = [_c0: string, _c1: string ... 7 more fields]
+
+scala> customer.toDF.registerTempTable("customer")
+warning: one deprecation (since 2.0.0); for details, enable `:setting -deprecation' or `:replay -deprecation'
+
+
+scala> customer.collect
+res14: Array[org.apache.spark.sql.Row] = Array([9327,Donna,Smith,XXXXXXXXX,XXXXXXXXX,4114 Clear Nectar Isle,Caguas,PR,00725], [9328,Mary,Perez,XXXXXXXXX,XXXXXXXXX,376 Golden Orchard,Moreno Valley,CA,92553], [9329,Eugene,Powell,XXXXXXXXX,XXXXXXXXX,2161 Burning Maze,Metairie,LA,70003], [9330,Mary,Conley,XXXXXXXXX,XXXXXXXXX,3046 Broad Sky Dale,Caguas,PR,00725], [9331,Donna,Smith,XXXXXXXXX,XXXXXXXXX,941 Thunder Branch Heights,Clementon,NJ,08021], [9332,Mary,Jordan,XXXXXXXXX,XXXXXXXXX,1551 Quaking Bend,Caguas,PR,00725], [9333,Angela,Mills,XXXXXXXXX,XXXXXXXXX,2580 Rustic Bay,Los Angeles,CA,90026], [9334,Mary,Johnston,XXXXXXXXX,XXXXXXXXX,4145 Jagged Downs,Tampa,FL,33624], [9335,Joseph,Smith,XXXXXXXXX,XXXXXXXXX,7861 Honey Acres,Caguas,PR,00725], [9336,Janice,Guzman,XXX...
+
+scala> val customerDF = customer.toDF
+customerDF: org.apache.spark.sql.DataFrame = [_c0: string, _c1: string ... 7 more fields]
+
+scala> customerDF.show
++----+------+--------+---------+---------+--------------------+-------------+---+-----+
+| _c0|   _c1|     _c2|      _c3|      _c4|                 _c5|          _c6|_c7|  _c8|
++----+------+--------+---------+---------+--------------------+-------------+---+-----+
+|9327| Donna|   Smith|XXXXXXXXX|XXXXXXXXX|4114 Clear Nectar...|       Caguas| PR|00725|
+|9328|  Mary|   Perez|XXXXXXXXX|XXXXXXXXX|  376 Golden Orchard|Moreno Valley| CA|92553|
+|9329|Eugene|  Powell|XXXXXXXXX|XXXXXXXXX|   2161 Burning Maze|     Metairie| LA|70003|
+|9330|  Mary|  Conley|XXXXXXXXX|XXXXXXXXX| 3046 Broad Sky Dale|       Caguas| PR|00725|
+|9331| Donna|   Smith|XXXXXXXXX|XXXXXXXXX|941 Thunder Branc...|    Clementon| NJ|08021|
+|9332|  Mary|  Jordan|XXXXXXXXX|XXXXXXXXX|   1551 Quaking Bend|       Caguas| PR|00725|
+|9333|Angela|   Mills|XXXXXXXXX|XXXXXXXXX|     2580 Rustic Bay|  Los Angeles| CA|90026|
+|9334|  Mary|Johnston|XXXXXXXXX|XXXXXXXXX|   4145 Jagged Downs|        Tampa| FL|33624|
+|9335|Joseph|   Smith|XXXXXXXXX|XXXXXXXXX|    7861 Honey Acres|       Caguas| PR|00725|
+|9336|Janice|  Guzman|XXXXXXXXX|XXXXXXXXX|   8143 Dusty Island|Spring Valley| CA|91977|
+|9337|  Mary|   Smith|XXXXXXXXX|XXXXXXXXX|    5687 Lazy Parade|      Chicago| IL|60643|
+|9338| James|   Davis|XXXXXXXXX|XXXXXXXXX|4715 Harvest Cree...|  Canoga Park| CA|91304|
+|9339|   Ann|   Moyer|XXXXXXXXX|XXXXXXXXX|4417 Hazy Creek Pike|       Caguas| PR|00725|
+|9340|  Mary|   Smith|XXXXXXXXX|XXXXXXXXX|7773 Merry Autoroute|  Victorville| CA|92392|
+|9341| Karen| Collins|XXXXXXXXX|XXXXXXXXX|    6163 Lazy Pointe|      Chicago| IL|60613|
+|9342|Teresa|   Grant|XXXXXXXXX|XXXXXXXXX|3684 Old River Cr...|       Caguas| PR|00725|
+|9343|  Mary|   Knapp|XXXXXXXXX|XXXXXXXXX|2394 Gentle Treas...|       Salina| KS|67401|
+|9344| Kelly|   Smith|XXXXXXXXX|XXXXXXXXX|8355 Lazy Anchor ...|       Caguas| PR|00725|
+|9345|  Mary|  Branch|XXXXXXXXX|XXXXXXXXX|  4767 Wishing Round|       Aurora| CO|80013|
+|9346|  Jack|   Smith|XXXXXXXXX|XXXXXXXXX|4208 Jagged Apple...|       Caguas| PR|00725|
++----+------+--------+---------+---------+--------------------+-------------+---+-----+
+only showing top 20 rows
+
+
+scala> customerDF.registerTempTable("customer")
+warning: one deprecation (since 2.0.0); for details, enable `:setting -deprecation' or `:replay -deprecation'
+
+scala> ssq.sql("select * from customer")
+res17: org.apache.spark.sql.DataFrame = [_c0: string, _c1: string ... 7 more fields]
+
+scala> ssq.sql("select * from customer").show
++----+------+--------+---------+---------+--------------------+-------------+---+-----+
+| _c0|   _c1|     _c2|      _c3|      _c4|                 _c5|          _c6|_c7|  _c8|
++----+------+--------+---------+---------+--------------------+-------------+---+-----+
+|9327| Donna|   Smith|XXXXXXXXX|XXXXXXXXX|4114 Clear Nectar...|       Caguas| PR|00725|
+|9328|  Mary|   Perez|XXXXXXXXX|XXXXXXXXX|  376 Golden Orchard|Moreno Valley| CA|92553|
+|9329|Eugene|  Powell|XXXXXXXXX|XXXXXXXXX|   2161 Burning Maze|     Metairie| LA|70003|
+|9330|  Mary|  Conley|XXXXXXXXX|XXXXXXXXX| 3046 Broad Sky Dale|       Caguas| PR|00725|
+|9331| Donna|   Smith|XXXXXXXXX|XXXXXXXXX|941 Thunder Branc...|    Clementon| NJ|08021|
+|9332|  Mary|  Jordan|XXXXXXXXX|XXXXXXXXX|   1551 Quaking Bend|       Caguas| PR|00725|
+|9333|Angela|   Mills|XXXXXXXXX|XXXXXXXXX|     2580 Rustic Bay|  Los Angeles| CA|90026|
+|9334|  Mary|Johnston|XXXXXXXXX|XXXXXXXXX|   4145 Jagged Downs|        Tampa| FL|33624|
+|9335|Joseph|   Smith|XXXXXXXXX|XXXXXXXXX|    7861 Honey Acres|       Caguas| PR|00725|
+|9336|Janice|  Guzman|XXXXXXXXX|XXXXXXXXX|   8143 Dusty Island|Spring Valley| CA|91977|
+|9337|  Mary|   Smith|XXXXXXXXX|XXXXXXXXX|    5687 Lazy Parade|      Chicago| IL|60643|
+|9338| James|   Davis|XXXXXXXXX|XXXXXXXXX|4715 Harvest Cree...|  Canoga Park| CA|91304|
+|9339|   Ann|   Moyer|XXXXXXXXX|XXXXXXXXX|4417 Hazy Creek Pike|       Caguas| PR|00725|
+|9340|  Mary|   Smith|XXXXXXXXX|XXXXXXXXX|7773 Merry Autoroute|  Victorville| CA|92392|
+|9341| Karen| Collins|XXXXXXXXX|XXXXXXXXX|    6163 Lazy Pointe|      Chicago| IL|60613|
+|9342|Teresa|   Grant|XXXXXXXXX|XXXXXXXXX|3684 Old River Cr...|       Caguas| PR|00725|
+|9343|  Mary|   Knapp|XXXXXXXXX|XXXXXXXXX|2394 Gentle Treas...|       Salina| KS|67401|
+|9344| Kelly|   Smith|XXXXXXXXX|XXXXXXXXX|8355 Lazy Anchor ...|       Caguas| PR|00725|
+|9345|  Mary|  Branch|XXXXXXXXX|XXXXXXXXX|  4767 Wishing Round|       Aurora| CO|80013|
+|9346|  Jack|   Smith|XXXXXXXXX|XXXXXXXXX|4208 Jagged Apple...|       Caguas| PR|00725|
++----+------+--------+---------+---------+--------------------+-------------+---+-----+
+only showing top 20 rows
+
+
+scala> ssq.sql("select _c0 as cust_id, _c1 as fname, _c2 as lname,_c8 as order_id from customer").createTempTable("customers")
+<console>:25: error: value createTempTable is not a member of org.apache.spark.sql.DataFrame
+       ssq.sql("select _c0 as cust_id, _c1 as fname, _c2 as lname,_c8 as order_id from customer").createTempTable("customers")
+                                                                                                  ^
+
+scala> ssq.sql("select _c0 as cust_id, _c1 as fname, _c2 as lname,_c8 as order_id from customer").registerTempTable("customers")
+warning: one deprecation (since 2.0.0); for details, enable `:setting -deprecation' or `:replay -deprecation'
+
+scala> ssq.sql("select * from  customers")
+res21: org.apache.spark.sql.DataFrame = [cust_id: string, fname: string ... 2 more fields]
+
+scala> ssq.sql("select * from  customers").show
++-------+------+--------+--------+
+|cust_id| fname|   lname|order_id|
++-------+------+--------+--------+
+|   9327| Donna|   Smith|   00725|
+|   9328|  Mary|   Perez|   92553|
+|   9329|Eugene|  Powell|   70003|
+|   9330|  Mary|  Conley|   00725|
+|   9331| Donna|   Smith|   08021|
+|   9332|  Mary|  Jordan|   00725|
+|   9333|Angela|   Mills|   90026|
+|   9334|  Mary|Johnston|   33624|
+|   9335|Joseph|   Smith|   00725|
+|   9336|Janice|  Guzman|   91977|
+|   9337|  Mary|   Smith|   60643|
+|   9338| James|   Davis|   91304|
+|   9339|   Ann|   Moyer|   00725|
+|   9340|  Mary|   Smith|   92392|
+|   9341| Karen| Collins|   60613|
+|   9342|Teresa|   Grant|   00725|
+|   9343|  Mary|   Knapp|   67401|
+|   9344| Kelly|   Smith|   00725|
+|   9345|  Mary|  Branch|   80013|
+|   9346|  Jack|   Smith|   00725|
++-------+------+--------+--------+
+only showing top 20 rows
+
+
+scala> ssq.sql("select * from Ordertable")
+res23: org.apache.spark.sql.DataFrame = [order_id: string, order_date: string ... 2 more fields]
+
+scala> ssq.sql("select * from Ordertable").show
++--------+--------------------+-----------+---------------+
+|order_id|          order_date|ord_cust_id|     ord_status|
++--------+--------------------+-----------+---------------+
+|   25003|2013-12-26 00:00:...|       6045|        PENDING|
+|   25004|2013-12-26 00:00:...|       5043|       COMPLETE|
+|   25005|2013-12-26 00:00:...|       7594|       COMPLETE|
+|   25006|2013-12-26 00:00:...|       4425|SUSPECTED_FRAUD|
+|   25007|2013-12-26 00:00:...|       5603|         CLOSED|
+|   25008|2013-12-26 00:00:...|      10672|       COMPLETE|
+|   25009|2013-12-26 00:00:...|      11983|PENDING_PAYMENT|
+|   25010|2013-12-26 00:00:...|       1745|     PROCESSING|
+|   25011|2013-12-26 00:00:...|       3253|        ON_HOLD|
+|   25012|2013-12-26 00:00:...|       7705|       COMPLETE|
+|   25013|2013-12-26 00:00:...|       9398|SUSPECTED_FRAUD|
+|   25014|2013-12-26 00:00:...|        369|       COMPLETE|
+|   25015|2013-12-26 00:00:...|       4344|       COMPLETE|
+|   25016|2013-12-26 00:00:...|       3352|     PROCESSING|
+|   25017|2013-12-26 00:00:...|       8715|         CLOSED|
+|   25018|2013-12-26 00:00:...|       4207|PENDING_PAYMENT|
+|   25019|2013-12-26 00:00:...|       4045|         CLOSED|
+|   25020|2013-12-26 00:00:...|       8764|        PENDING|
+|   25021|2013-12-26 00:00:...|       9405|PENDING_PAYMENT|
+|   25022|2013-12-26 00:00:...|      10450|PENDING_PAYMENT|
++--------+--------------------+-----------+---------------+
+only showing top 20 rows
+
+
+scala> ssq.sql("select * from customers").show
++-------+------+--------+--------+
+|cust_id| fname|   lname|order_id|
++-------+------+--------+--------+
+|   9327| Donna|   Smith|   00725|
+|   9328|  Mary|   Perez|   92553|
+|   9329|Eugene|  Powell|   70003|
+|   9330|  Mary|  Conley|   00725|
+|   9331| Donna|   Smith|   08021|
+|   9332|  Mary|  Jordan|   00725|
+|   9333|Angela|   Mills|   90026|
+|   9334|  Mary|Johnston|   33624|
+|   9335|Joseph|   Smith|   00725|
+|   9336|Janice|  Guzman|   91977|
+|   9337|  Mary|   Smith|   60643|
+|   9338| James|   Davis|   91304|
+|   9339|   Ann|   Moyer|   00725|
+|   9340|  Mary|   Smith|   92392|
+|   9341| Karen| Collins|   60613|
+|   9342|Teresa|   Grant|   00725|
+|   9343|  Mary|   Knapp|   67401|
+|   9344| Kelly|   Smith|   00725|
+|   9345|  Mary|  Branch|   80013|
+|   9346|  Jack|   Smith|   00725|
++-------+------+--------+--------+
+only showing top 20 rows
+
+
+
+scala> ssq.sql("select c.fname, c.lname,od.ord_status from customers c  join Ordertable od on (c.order_id = od.order_id)").show
++---------+---------+---------------+
+|    fname|    lname|     ord_status|
++---------+---------+---------------+
+|   Jordan|    Smith|       COMPLETE|
+|    Jerry|   Garner|       COMPLETE|
+|     Mary|     Byrd|       COMPLETE|
+|     Mary|    Smith|       COMPLETE|
+|  Michael|  Hickman|       COMPLETE|
+|  Charles|    Ramos|       COMPLETE|
+|Christian|    Smith|       COMPLETE|
+|    Jesse|  Esparza|       COMPLETE|
+|    Kathy|    Smith|       COMPLETE|
+|     Mary|Hernandez|PENDING_PAYMENT|
+|    Karen|  Roberts|PENDING_PAYMENT|
+|     Mary|    Smith|PENDING_PAYMENT|
+|    Tyler|    Smith|PENDING_PAYMENT|
+|     Anna|Robertson|PENDING_PAYMENT|
+|  Matthew|    Smith|PENDING_PAYMENT|
+|     Mary|  Stewart|PENDING_PAYMENT|
+|     Mary|  Baldwin|        ON_HOLD|
+|    Grace|    Patel|        ON_HOLD|
+|     Mary|    Smith|        ON_HOLD|
+|   Evelyn|    Smith|        ON_HOLD|
++---------+---------+---------------+
+only showing top 20 rows
+
+                                                                                                                             
+scala> ssq.sql("select c.fname, c.lname,od.ord_status from customers c  join Ordertable od on (c.order_id = od.order_id)where (od.ord_status == 'COMPLETE')").show
++---------+---------+----------+
+|    fname|    lname|ord_status|
++---------+---------+----------+
+|   Jordan|    Smith|  COMPLETE|
+|    Jerry|   Garner|  COMPLETE|
+|     Mary|     Byrd|  COMPLETE|
+|     Mary|    Smith|  COMPLETE|
+|  Michael|  Hickman|  COMPLETE|
+|  Charles|    Ramos|  COMPLETE|
+|Christian|    Smith|  COMPLETE|
+|    Jesse|  Esparza|  COMPLETE|
+|    Kathy|    Smith|  COMPLETE|
+|     Mary|     Wolf|  COMPLETE|
+|     Mary|     Mata|  COMPLETE|
+|    Laura|    Adams|  COMPLETE|
+|     Mary| Richmond|  COMPLETE|
+|     Mary|   Galvan|  COMPLETE|
+|    Donna|    Smith|  COMPLETE|
+|Katherine|    Smith|  COMPLETE|
+|     Mary|      Ali|  COMPLETE|
+|     Mary|Contreras|  COMPLETE|
+|  Crystal|   Molina|  COMPLETE|
+|   Martha|  Woodard|  COMPLETE|
++---------+---------+----------+
+only showing top 20 rows
+
+
+
+
+
+
+scala> ssq.sql("select c.fname, c.lname,od.ord_status from customers c  join Ordertable od on (c.order_id = od.order_id)where (od.ord_status == 'COMPLETE' and od.order_date like '%2013%')").show
++---------+--------+----------+
+|    fname|   lname|ord_status|
++---------+--------+----------+
+|   Jordan|   Smith|  COMPLETE|
+|    Jerry|  Garner|  COMPLETE|
+|     Mary|    Byrd|  COMPLETE|
+|     Mary|   Smith|  COMPLETE|
+|  Michael| Hickman|  COMPLETE|
+|  Charles|   Ramos|  COMPLETE|
+|Christian|   Smith|  COMPLETE|
+|    Jesse| Esparza|  COMPLETE|
+|    Kathy|   Smith|  COMPLETE|
+|     Mark|   Smith|  COMPLETE|
+|     Mary|Thompson|  COMPLETE|
+|     Mary|   Nunez|  COMPLETE|
+|   Hannah| Wilkins|  COMPLETE|
+| Margaret|  Knight|  COMPLETE|
+|   Andrew|   Smith|  COMPLETE|
+|   Robert|   Smith|  COMPLETE|
+|    Maria| Higgins|  COMPLETE|
+|   Ashley|   Smith|  COMPLETE|
+|     Lisa|  Garcia|  COMPLETE|
+|     Mary|   Smith|  COMPLETE|
++---------+--------+----------+
+only showing top 20 rows
+
+
+scala> val result = ssq.sql("select c.fname, c.lname,od.ord_status from customers c  join Ordertable od on (c.order_id = od.order_id)where (od.ord_status == 'COMPLETE' and od.order_date like '%2013%')").show
++---------+--------+----------+
+|    fname|   lname|ord_status|
++---------+--------+----------+
+|   Jordan|   Smith|  COMPLETE|
+|    Jerry|  Garner|  COMPLETE|
+|     Mary|    Byrd|  COMPLETE|
+|     Mary|   Smith|  COMPLETE|
+|  Michael| Hickman|  COMPLETE|
+|  Charles|   Ramos|  COMPLETE|
+|Christian|   Smith|  COMPLETE|
+|    Jesse| Esparza|  COMPLETE|
+|    Kathy|   Smith|  COMPLETE|
+|     Mark|   Smith|  COMPLETE|
+|     Mary|Thompson|  COMPLETE|
+|     Mary|   Nunez|  COMPLETE|
+|   Hannah| Wilkins|  COMPLETE|
+| Margaret|  Knight|  COMPLETE|
+|   Andrew|   Smith|  COMPLETE|
+|   Robert|   Smith|  COMPLETE|
+|    Maria| Higgins|  COMPLETE|
+|   Ashley|   Smith|  COMPLETE|
+|     Lisa|  Garcia|  COMPLETE|
+|     Mary|   Smith|  COMPLETE|
++---------+--------+----------+
+only showing top 20 rows
+
+result: Unit = ()
+
+scala> result.show()
+<console>:25: error: value show is not a member of Unit
+       result.show()
+              ^
+ssq.sql("select c.cust_id ,concat(c.fname,' ' ,c.lname) as full_name from customers c join ordtable o on (c.cust_id = o.order_id) where o.ord_status == 'COMPLETE' AND o.order_date like '%2013%'").show()
++-------+---------------+
+|cust_id|      full_name|
++-------+---------------+
+|      3|      Ann Smith|
+|      5|  Robert Hudson|
+|      6|     Mary Smith|
+|      7| Melissa Wilcox|
+|     15|      Jane Luna|
+|     17|  Mary Robinson|
+|     22|   Joseph Smith|
+|     26|    Johnny Hood|
+|     28|  Timothy Smith|
+|     32|    Alice Smith|
+|     35|Margaret Wright|
+|     45|     Mary Nunez|
+|     56|    Mary Kaiser|
+|     63|    Aaron Smith|
+|     65| Jennifer Smith|
+|     67| Samantha Smith|
+|     71|  Charles Smith|
+|     72|Frank Gillespie|
+|     76|   Joseph Young|
+|     80|    Joe Parsons|
++-------+---------------+
+
