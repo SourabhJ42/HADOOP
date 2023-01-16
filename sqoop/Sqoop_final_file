@@ -1,0 +1,272 @@
+admin1@admin1:~$ mysql -u root -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 36
+Server version: 5.1.73-0ubuntu0.10.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| batch9             |
+| mysql              |
+| school             |
+| student            |
++--------------------+
+5 rows in set (0.17 sec)
+
+
+mysql> create database stud;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| batch9             |
+| mysql              |
+| school             |
+| stud               |
+| student            |
++--------------------+
+6 rows in set (0.00 sec)
+
+mysql> use stud;
+Database changed
+mysql> create table student(roll_no int primary key,stud_name varchar(30),stud_marks int);
+Query OK, 0 rows affected (0.00 sec)
+mysql> show tables;
++----------------+
+| Tables_in_stud |
++----------------+
+| student        |
++----------------+
+1 row in set (0.00 sec)
+
+mysql> insert into student values (100,'john',750);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into student values (101,'sunny',800);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into student values (102,'Rubby',600);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from student;
++---------+-----------+------------+
+| roll_no | stud_name | stud_marks |
++---------+-----------+------------+
+|     100 | john      |        750 |
+|     101 | sunny     |        800 |
+|     102 | Rubby     |        600 |
++---------+-----------+------------+
+3 rows in set (0.00 sec)
+
+open new terminal
+
+admin1@admin1:~$ sqoop version
+
+admin1@admin1:~$ sqoop help
+
+mysql> grant all privileges on stud.* to '%'@'localhost'; 
+Query OK, 0 rows affected (0.50 sec)
+
+mysql> grant all privileges on stud.* to ''@'localhost'; 
+Query OK, 0 rows affected (0.00 sec)
+
+# to send table student to HDFS ....here sourabh is database from SQL
+admin1@admin1:~$ sqoop import --connect jdbc:mysql://localhost/sourabh --table student;
+
+admin1@admin1:~$ hadoop fs -ls
+
+admin1@admin1:~$ hadoop fs -ls /user/admin1/student
+
+admin1@admin1:~$ hadoop fs -ls /user/admin1/student
+
+admin1@admin1:~$ hadoop fs -cat /user/admin1/student/part-m-00000
+100,john,750
+admin1@admin1:~$ hadoop fs -cat /user/admin1/student/part-m-00001
+101,sunny,800
+admin1@admin1:~$ hadoop fs -cat /user/admin1/student/part-m-00002
+102,Rubby,600
+
+# this command will copy student table to directory Import9
+admin1@admin1:~$ sqoop import --connect jdbc:mysql://localhost/sourabh --table student -m 1 --target-dir '/Import9/';
+
+
+admin1@admin1:~$ hadoop fs -ls /Import9/
+
+
+admin1@admin1:~$ hadoop fs -ls /Import9/
+Found 3 items
+-rw-r--r--   3 admin1 supergroup          0 2017-05-06 15:46 /Import9/_SUCCESS
+drwxr-xr-x   - admin1 supergroup          0 2017-05-06 15:46 /Import9/_logs
+-rw-r--r--   3 admin1 supergroup         41 2017-05-06 15:46 /Import9/part-m-00000
+admin1@admin1:~$ hadoop fs -cat /Import9/part-m-00000
+100,john,750
+101,sunny,800
+102,Rubby,600
+
+admin1@admin1:~$ hadoop fs -rmr /Import9/
+		or
+# to delete the Import9 directory from hdfs
+admin1@admin1:~$ hdfs dfs -rm -r -skipTrash /Import9/
+
+# here stud is the name of our database in which we created the table ...# also set no of mappers = 1  # fileds terminated by |
+admin1@admin1:~$ sqoop import --connect jdbc:mysql://localhost/stud --table student -m 1 --fields-terminated-by '|' --target-dir '/Import9/';
+
+admin1@admin1:~$ hadoop fs -ls /Import9/;
+
+admin1@admin1:~$ hadoop fs -cat /Import9/part-m-00000
+100|john|750
+101|sunny|800
+102|Rubby|600
+
+admin1@admin1:~$ hadoop fs -rmr /Import9/   or  hdfs dfs -rm -r -skipTrash /Import9/
+
+how to display specific columns from table
+
+Deleted hdfs://localhost:54310/Import9
+admin1@admin1:~$ sqoop import --connect jdbc:mysql://localhost/stud --table student -m 1 --fields-terminated-by '|' --columns 'roll_no,stud_name' --target-dir '/Import9/';
+
+admin1@admin1:~$ hadoop fs -cat /Import9/part-m-00000
+
+show those students whose marks is greater than 600
+
+admin1@admin1:~$ hadoop fs -rmr /Import9/
+
+admin1@admin1:~$ sqoop import --connect jdbc:mysql://localhost/stud --table student -m 1 --fields-terminated-by '|' --where 'stud_marks>600' --target-dir '/Import9/';
+
+admin1@admin1:~$ hadoop fs -cat /Import9/part-m-00000
+100|john|750
+101|sunny|800
+
+list of databases 
+
+# return all data bases avialbe in your relational database
+admin1@admin1:~$ sqoop list-databases --connect jdbc:mysql://localhost;
+
+#list of tables in available in database 
+
+admin1@admin1:~$ sqoop list-tables --connect jdbc:mysql://localhost/stud;
+
+EVAL : to run SQL query inside sqoop
+admin1@admin1:~$ sqoop eval --connect jdbc:mysql://localhost/sourabh --query "select * from student";
+CREATE NEW TABLE USING SQOOP
+admin1@admin1:~$ sqoop eval --connect jdbc:mysql://localhost/sourabh --query "create table stud_info(stud_age int,stud_add varchar (30),stud_college varchar(30))";
+admin1@admin1:~$ sqoop eval --connect jdbc:mysql://localhost/sourabh --query "select * from stud_info";  # sourabh => Database
+admin1@admin1:~$ sqoop eval --connect jdbc:mysql://localhost/sourabh --query "insert into stud_info values(14,'MH','SPPU')";
+admin1@admin1:~$ sqoop eval --connect jdbc:mysql://localhost/sourabh --query "insert into stud_info values(15,'MP','RGTU')"
+admin1@admin1:~$ sqoop eval --connect jdbc:mysql://localhost/stud --query "insert into stud_info values(13,'UP','UPTU')"
+admin1@admin1:~$ sqoop eval --connect jdbc:mysql://localhost/stud --query "insert into stud_info values(17,'GJ','GJU')"
+admin1@admin1:~$ sqoop eval --connect jdbc:mysql://localhost/stud --query "select * from stud_info";
+
+mysql> select * from stud_info;
++----------+----------+--------------+
+| stud_age | stud_add | stud_college |
++----------+----------+--------------+
+|       14 | MH       | DYPU         |
+|       15 | MP       | RGTU         |
+|       13 | UP       | UPTU         |
+|       17 | GJ       | GJU          |
++----------+----------+--------------+
+4 rows in set (0.00 sec)
+
+admin1@admin1:~$ sqoop eval --connect jdbc:mysql://localhost/stud --query "update stud_info set stud_college='DYPU' where stud_age=14";
+
+IMPORT USING EVAL
+
+admin1@admin1:~$ sqoop import --connect jdbc:mysql://localhost/stud --query "select * from stud_info where stud_age>15 and \$CONDITIONS" --target-dir '/Import9query' -m 1;
+admin1@admin1:~$ hadoop fs -ls /Import9query;
+admin1@admin1:~$ hadoop fs -cat /Import9query/part-m-00000;
+
+joining two tables using inner join
+
+create two tables
+
+mysql> create table dept(deptid int,eid int,dname varchar(30),dloc varchar(30));
+mysql> insert into dept values (10101,100,'it','hyd');
+mysql> insert into dept values (10102,101,'it','mumbai');
+mysql> insert into dept values (10103,102,'bpo','chennai');
+mysql> insert into dept values (10104,103,'HR','kolkata');
+
+mysql> select * from dept;
++--------+------+-------+---------+
+| deptid | eid  | dname | dloc    |
++--------+------+-------+---------+
+|  10101 |  100 | it    | hyd     |
+|  10102 |  101 | it    | mumbai  |
+|  10103 |  102 | bpo   | chennai |
+|  10104 |  103 | HR    | kolkata |
++--------+------+-------+---------+
+4 rows in set (0.00 sec)
+
+mysql> create table emp(eid int,ename varchar(30),esal int);
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> insert into emp values(100,'john',10000);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into emp values(101,'sunny',15000);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into emp values(102,'marry',20000);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into emp values(103,'rosy',12000);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from emp;
++------+-------+-------+
+| eid  | ename | esal  |
++------+-------+-------+
+|  100 | john  | 10000 |
+|  101 | sunny | 15000 |
+|  102 | marry | 20000 |
+|  103 | rosy  | 12000 |
++------+-------+-------+
+4 rows in set (0.00 sec)
+
+admin1@admin1:~$ sqoop import --connect jdbc:mysql://localhost/stud --query "select e.eid,e.ename,e.esal,d.deptid,d.dname,d.dloc from emp e inner join dept d on(e.eid=d.eid) where \$CONDITIONS" --target-dir '/Import9join' -m 1;
+
+admin1@admin1:~$ hadoop fs -ls /Import9join/
+
+admin1@admin1:~$ hadoop fs -cat /Import9join/part-m-00000
+
+-----display data using different file------
+
+admin1@admin1:~$ sqoop import --connect jdbc:mysql://localhost/stud --table emp -m 1 --fields-terminated-by '|' --where 'esal>15000' --target-dir '/viru/' --as-sequencefile;
+
+admin1@admin1:~$ hadoop fs -ls '/viru/'
+
+admin1@admin1:~$ hadoop fs -cat /viru/part-m-00000
+SEQ!org.apache.hadoop.io.LongWritableemp1ag)0���#5�ݚw�ifmarryN
+
+admin1@admin1:~$ sqoop job help
+
+-------export data from HDFS to MYSQL-------
+
+admin1@admin1:~$ nano part-m-00000
+admin1@admin1:~$ hadoop fs -rmr /Import9/part-m-00000  or hdfs dfs -rm -r -skipTrash /Import9/part-m-00000
+
+admin1@admin1:~$ hadoop fs -put part-m-00000 /Import9/part-m-00000
+admin1@admin1:~$ hadoop fs -cat /Import9/part-m-00000
+
+105,tony,23000
+106,siaa,43400
+107,mann,32000
+
+# here we already created one table emp and also created the nano file -> part-m-00000 and stored in on hdfs directory 'sourabh'
+ we are exporting that part...file to database sourabh.....for that run below command ...then check in my sql(select * from emp)...
+admin1@admin1:~$ sqoop export --connect jdbc:mysql://localhost/sourabh --table emp --export-dir '/Import9/part-m-00000' --fields-terminated-by ',';
+
