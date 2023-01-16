@@ -10,6 +10,10 @@ sudo /usr/local/kafka/bin/kafka-console-producer.sh --broker-list localhost:9092
 # To start the consumer
 sudo /usr/local/kafka/bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic prac --from-beginning
 
+# tTo list the topics:
+
+# To list out the topics
+sudo /usr/local/kafka/bin/kafka-topics.sh --list --zookeeper localhost:2181
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
